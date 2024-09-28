@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация на конференцию</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 500px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
+    <script>
+        function toggleTopicField() {
+            var isReport = document.getElementById("report").checked;
+            var topicField = document.getElementById("topicField");
+            if (isReport) {
+                topicField.classList.remove("hidden");
+            } else {
+                topicField.classList.add("hidden");
+            }
+        }
+
+        function validateForm(event) {
+            var fullName = document.getElementById("fullName").value.trim();
+            var phone = document.getElementById("phone").value.trim();
+            var email = document.getElementById("email").value.trim();
+            var section = document.getElementById("section").value.trim();
+            var isReport = document.getElementById("report").checked;
+            var topic = document.getElementById("topic").value.trim();
+            var errors = false;
+
+            // Очистка предыдущих ошибок
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+
+            // Валидация ФИО (только буквы русского алфавита и три слова)
+            var fullNamePattern = /^[А-Яа-яЁё]+ [А-Яа-яЁё]+ [А-Яа-яЁё]+$/;
+            if (!fullNamePattern.test(fullName)) {
+                document.getElementById("fullNameError").textContent = "Введите полное ФИО (только русские буквы).";
+                errors = true;
+            }
+
+            // Валидация телефона (формат +7XXXXXXXXXX, только цифры)
+            var phonePattern = /^\+7\d{10}$/;
+            if (!phonePattern.test(phone)) {
+                document.getElementById("phoneError").textContent = "Введите корректный телефон в формате +7XXXXXXXXXX.";
+                errors = true;
+            }
+
+            // Валидация email
+            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById("emailError").textContent = "Введите корректный адрес электронной почты.";
+                errors = true;
+            }
+
+            // Проверка выбора секции
+            if (!section) {
+                document.getElementById("sectionError").textContent = "Выберите секцию.";
+                errors = true;
+            }
+
+            // Валидация темы доклада, если выбран чекбокс
+            if (isReport && topic === "") {
+                document.getElementById("topicError").textContent = "Введите тему доклада.";
+                errors = true;
+            }
+
+            // Если есть ошибки, предотвращаем отправку формы
+            if (errors) {
+                event.preventDefault();
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Регистрация на конференцию</h2>
+    
+    <form action="process_registration.php" method="post" onsubmit="validateForm(event)">
+        <!-- ФИО -->
+        <label for="fullName">Фамилия, имя, отчество:</label>
+        <input type="text" id="fullName" name="fullName" required placeholder="Введите ФИО">
+        <div id="fullNameError" class="error"></div>
+        
+        <!-- Контактный телефон -->
+        <label for="phone">Контактный телефон:</label>
+        <input type="tel" id="phone" name="phone" required placeholder="Введите телефон в формате +7XXXXXXXXXX">
+        <div id="phoneError" class="error"></div>
+        
+        <!-- Электронная почта -->
+        <label for="email">Адрес электронной почты:</label>
+        <input type="email" id="email" name="email" required placeholder="Введите ваш email">
+        <div id="emailError" class="error"></div>
+        
+        <!-- Секции конференции -->
+        <label for="section">Секция конференции:</label>
+        <select id="section" name="section" required>
+            <option value="">Выберите секцию</option>
+            <option value="math">Математика</option>
+            <option value="physics">Физика</option>
+            <option value="informatics">Информатика</option>
+        </select>
+        <div id="sectionError" class="error"></div>
+        
+        <!-- Дата рождения -->
+        <label for="dob">Дата рождения (необязательно):</label>
+        <input type="date" id="dob" name="dob">
+        
+        <!-- Доклад -->
+        <label>
+            <input type="checkbox" id="report" name="report" value="yes" onclick="toggleTopicField()"> Я хочу сделать доклад
+        </label>
+        
+        <!-- Поле для ввода темы доклада (скрытое по умолчанию) -->
+        <div id="topicField" class="hidden">
+            <label for="topic">Тема доклада:</label>
+            <textarea id="topic" name="topic" placeholder="Введите тему доклада"></textarea>
+            <div id="topicError" class="error"></div>
+        </div>
+        
+        <!-- Кнопка отправки -->
+        <button type="submit">Отправить</button>
+    </form>
+
+</body>
+</html>
